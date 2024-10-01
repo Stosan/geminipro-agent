@@ -19,6 +19,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 from src.ragpipeline.run import run_pipeline, save_pdf_to_temp
 from src.utilities.Printer import printer
+from src.utilities.helpers import static_response_generator,static_responses
 
 # Get application settings
 settings = get_setting()
@@ -148,6 +149,10 @@ async def upload_pdf(file: UploadFile = File(...)):
         )
 
 
+async def generate_events(stc,dumped_data:dict,sentence:str):
+    async for chunk in stc.generate_response(dumped_data.get("userData"), sentence):
+        yield f"data: {chunk}\n\n"
+
 @app.post(f"{settings.API_STR}/chat-stream")
 async def generate_response(
     data: ChatRequest,
@@ -161,18 +166,22 @@ async def generate_response(
     try:
         dumped_data = data.model_dump()
         sentence = dumped_data.get("sentence").strip()
+        # Basic attack protection: remove "[INST]" or "[/INST]" or "<|im_start|>"from the sentence
+        sentence = re.sub(r"\[/?INST\]|<\|im_start\|>|<\|im_end\|>", "", sentence)
+
+
+        if sentence.lower() in static_responses:
+            # Use the generator for static responses
+            async for response in static_response_generator(sentence):
+                return StreamingResponse(response, media_type="text/event-stream")
+
         stc = StreamConversation(llm=api_llm)
         if data.userData is not None:
             dumped_data = data.model_dump()
-            print(dumped_data)
             sentence = dumped_data.get("sentence").strip()
-            # Basic attack protection: remove "[INST]" or "[/INST]" or "<|im_start|>"from the sentence
-            sentence = re.sub(r"\[/?INST\]|<\|im_start\|>|<\|im_end\|>", "", sentence)
-            agent_response = stc.generate_response(dumped_data.get("userData"), sentence)
+            return StreamingResponse(generate_events(stc,dumped_data, sentence), media_type="text/event-stream")
         else:
-            agent_response = stc.generate_response({}, sentence)
-        
-        return StreamingResponse(agent_response,headers={ "Content-Type": "text/event-stream" }, status_code=200)
+            return StreamingResponse(generate_events(stc,{}, sentence), media_type="text/event-stream")
     except Exception as e:
         print(e)
         raise HTTPException(

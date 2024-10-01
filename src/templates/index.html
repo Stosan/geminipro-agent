@@ -29,14 +29,16 @@
     <div style="position: fixed; right: 0; top: 20%;">
         <h2 class="upload-header">Upload PDF</h2>
         <p style="width: 220px; margin-bottom:10px">Upload PDF document and chat with it instantly!</p>
-        <div id="upload-status"  style="margin-top:10px;margin-bottom:10px"></div>
+        <div id="upload-status" style="margin-top:10px;margin-bottom:10px"></div>
         <form id="upload-form" class="upload-form">
             <div class="file-upload">
-            <input type="file" id="pdf-file"  class="file-upload-btn" accept=".pdf" required style="display: block; margin-bottom: 5px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
-            <button type="submit" style="display: block; margin-top:15px; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
-        </div>
-    </form>
-    
+                <input type="file" id="pdf-file" class="file-upload-btn" accept=".pdf" required
+                    style="display: block; margin-bottom: 5px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                <button type="submit"
+                    style="display: block; margin-top:15px; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
+            </div>
+        </form>
+
     </div>
     <script>
         const chatContent = document.getElementById('chat-content');
@@ -62,44 +64,49 @@
             return messageDiv;
         }
         async function streamResponse(sentence) {
-    const aiMessageDiv = addMessage('', true);
+            const aiMessageDiv = addMessage('', true);
 
-    const payload = {
-        sentence: sentence,
-    }
+            const payload = {
+                sentence: sentence,
+                userData: {
+                    name: "Ayo",
+                    gender: "male",
+                    current_location: "Lagos, Nigeria",
+                    timezone: "Africa/Lagos, UTC+1"
+                }
+            }
 
-    const response = await fetch(STREAM_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Basic ' + btoa(USERNAME + ':' + PASSWORD)
-        },
-        body: JSON.stringify(payload)
-    });
+            const response = await fetch(STREAM_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + btoa(USERNAME + ':' + PASSWORD)
+                },
+                body: JSON.stringify(payload)
+            });
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
 
-    let buffer = '';
+            let buffer = '';
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-
-        for (const line of lines) {
-            if (line.trim() !== '') {
-                let content = line.replace(/^data:/, '').trim();
-                content = content.replace(/\\n/g, '<br>');
-                aiMessageDiv.innerHTML += content;
-                chatContent.scrollTop = chatContent.scrollHeight;
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop();
+                for (const line of lines) {
+                    if (line.trim() !== '') {
+                        let content = line.replace(/^data:/, '').trim();
+                        content = content.replace(/\\n/g, '<br>');
+                        aiMessageDiv.innerHTML += content;
+                        chatContent.scrollTop = chatContent.scrollHeight;
+                    }
+                }
             }
         }
-    }
-}
         // async function streamResponse(sentence) {
         //     const aiMessageDiv = addMessage('', true);
 
@@ -131,17 +138,17 @@
         //         buffer = lines.pop();
 
         //         for (const line of lines) {
-                  
+
         //                 let content = line.replace(/^data:/, '')
         //                 const tempDiv = document.createElement('div');
         //                 tempDiv.innerHTML = content; 
-                        
+
         //                 content = tempDiv.textContent || tempDiv.innerText || '';
         //                 content = content.replace(/\\n/g, '<br>');
         //                 console.log(content)
         //                 aiMessageDiv.innerHTML = content;
         //                 chatContent.scrollTop = chatContent.scrollHeight;
-                    
+
         //         }
         //     }
         // }

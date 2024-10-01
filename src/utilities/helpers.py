@@ -57,5 +57,21 @@ def check_final_answer_exist(string_to_check):
     # Check if the pattern is found in the string
     return bool(pattern.search(string_to_check))
 
+# Static responses for recurrent sentences
+static_responses = {
+    "hello": "Hello! How can I assist you today?",
+    "hi": "Hi there! How can I help you?",
+    "are you online": "Yes, I am online and ready to assist you.",
+    "are you there": "Yes, I am here. How can I assist you?",
+    "good morning": "Good morning! How can I help you today?",
+    "good afternoon": "Good afternoon! How can I assist you today?",
+    "good evening": "Good evening! How can I help you today?"
+}
+
+async def static_response_generator(sentence):
 
 
+    # Check if the sentence matches any static response
+    lower_sentence = sentence.lower()
+    if lower_sentence in static_responses:
+        yield f"data: {static_responses[lower_sentence]}\n\n"

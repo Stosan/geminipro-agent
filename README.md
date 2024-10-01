@@ -90,14 +90,43 @@ To set up Pinecone as vectorDB, follow these steps:
 
 ### Running the Service
 
+#### Start with TESTS
+To run the tests, Follow these steps:
+
+1. **Install pytest**:
+   If you haven't already installed `pytest`, you can do so using pip:
+   ```bash
+   pip install pytest
+   ```
+
+2. **Run the tests**:
+   You can run the tests by executing the following command in the root directory of the project:
+   ```bash
+   pytest
+   ```
+
+   This will automatically discover and run all the test files in the project.
+
+3. **View detailed output**:
+   To view more detailed output while running the tests, you can use the `-v` (verbose) option:
+   ```bash
+   pytest -v
+   ```
+
+4. **Generate a test coverage report**:
+   To generate a test coverage report, you can use the `pytest-cov` plugin. First, install the plugin:
+   ```bash
+   pip install pytest-cov
+   ```
+
 1. Start the FastAPI server:
 
    ```bash
    uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
    ```
 
-2. Open a browser and navigate to `http://localhost:8000/docs` to access the FastAPI Swagger documentation.
-
+2. Open a browser and navigate to `http://localhost:8000` to access the chatview frontend.
+3. Open a browser and navigate to `http://localhost:8000/docs` to access the FastAPI Swagger documentation.
 
 ### What Next? 🚀
 

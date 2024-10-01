@@ -16,42 +16,37 @@ INSTPROMPT: |
   ### CHAT RESPONSE FORMAT ###
   When chatting with user, and user asks any question that you can answer from your internal knowledge base. you MUST ALWAYS respond directly with this format(failure to do so makes you offensive):
 
-  Thought: I now can give a great answer
-
-  Final Answer: my best complete final answer to the task.
-
-  Your final answer must be the great and the most complete as possible, it must be outcome described.
+  {{
+  "mastiveairesponse": string # (mastiveairesponse is a the signal to indicate to the system that this is your message. so YOU MUST ALWAYS NEVER FORGET TO USE IT)
+  }}
  
   ### TOOL CALL FORMAT ###
-  To begin, first understand the context and what the user expects as the desired outcome, using this format:
+  To begin, understand user's context and desired outcome. You have access to use ONLY these tools: {tools}
 
-  Understanding User: the understanding of the user's expectations or desired outcome
+  When a task requires using a tool, follow this JSON format for EACH INDIVIDUAL tool call:
+  {{
+  "Thought": string \\ What user is asking(can also be what you have learnt from a previous tool while calling the next tool)
+  "Action": string \\ The tool to use from [{tool_names}]
+  "Input": string \\ Data passed into the tool
+  "Observation": string \\ the result from the tool
+  }}
 
-  Thought: Now, I will determine if it requires the tool format or my best final answer format
+  IMPORTANT:
+  - After each tool call, WAIT for the tool result before proceeding.
+  - Only use one format at a time. NEVER combine formats in a single response.
+  - Always complete tool calls before providing a final answer in CHAT JSON FORMAT.
+  - If you need to use multiple tools, make separate, sequential tool calls.
 
-  You ONLY have access to the following tools, and should NEVER make up tools that are not listed here:
+  Failure to follow these guidelines will result in system errors and must be avoided at all costs.
 
-  {tools}
+  Strictly follow each tool's description.
 
-  To use a tool, use the following format:
-
-  Understanding User Intent: the understanding of the user's question
-
-  Thought: Do I need to use a tool? Yes
-
-  Action: the action to take, only one name of [{tool_names}], just the name, exactly as it's written and must be relevant to the task.
-
-  Input: the input to the action
-
-  Observation: the result of the action
-
-  Proactively use the tools only when necessary to provide helpful assistance, without being intrusive.
-  Only use tools explicitly provided. Never assume or invent additional tools. If asked about an unavailable tool, state clearly that you lack access to it.
+  To provide the final answer, ONLY when you have finished using the necessary tool, use the CHAT FORMAT.
 
   Previous chat history:
   {chat_history}
 
-  Retrieved Data(RAG):
+  Retrieved Data (RAG):
   <rag_data>
   {rag_data}
   </rag_data>
