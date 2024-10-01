@@ -31,6 +31,15 @@ It employs a layered architecture to ensure modularity, maintainability, and fle
 
 - ☁️ **Google AI Studio:** A suite of AI and machine learning services provided by Google Cloud Platform.
 
+### Features
+
+- **RAG (Retrieval-Augmented Generation):** The system integrates a robust RAG pipeline that enhances the AI's ability to generate contextually relevant responses by retrieving pertinent information from a vast knowledge base. This ensures that the AI can provide accurate and up-to-date information, making it highly reliable for various applications.
+![GeminiPro-AI System RAG Architecture](rag.png)
+![GeminiPro-AI System RAG Architecture](rag2.png)
+
+- **Tool Calling:** The system is equipped with a dynamic tool-calling mechanism that allows the AI to interact with various tools and APIs seamlessly. This feature enables the AI to perform a wide range of tasks, from data retrieval and processing to executing complex workflows, thereby extending its capabilities beyond simple text generation.
+
+
 ## Getting Started 🛠️
 
 Follow these steps to set up and run the GeminiPro-AI Agent Server on your local machine:

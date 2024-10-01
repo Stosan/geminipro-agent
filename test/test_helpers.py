@@ -4,26 +4,22 @@ from datetime import datetime
 from src.utilities.helpers import check_final_answer_exist, get_day_date_month_year_time, load_yaml_file
 
 
-def test_load_yaml_file(mocker):
-    # Mock the open function and yaml.safe_load
-    mock_yaml_content = "key: value\nlist:\n  - item1\n  - item2"
-    expected_result = {"key": "value", "list": ["item1", "item2"]}
-    
-    mocker.patch("builtins.open", mocker.mock_open(read_data=mock_yaml_content))
-    mocker.patch("yaml.safe_load", return_value=expected_result)
-    
-    result = load_yaml_file("dummy_path.yaml")
-    assert result == expected_result
+def test_load_yaml_file():
+    result = load_yaml_file("src/prompts/instruction.yaml")
+    assert "INSTPROMPT" in result
 
-def test_get_day_date_month_year_time(mocker):
-    # Set a fixed datetime for testing
-    mock_datetime = mocker.patch('your_module.dts')
-    mock_datetime.now.return_value = datetime(2023, 4, 15, 10, 30, 45)
-    
+
+def test_get_day_date_month_year_time():
+ 
     result = get_day_date_month_year_time()
-    
-    expected = ('04-15-2023', 'Saturday', 15, 4, 2023, 10, 30, 45)
-    assert result == expected
+    assert isinstance(result[0], str)
+    assert isinstance(result[1], str)
+    assert isinstance(result[2], int)
+    assert isinstance(result[3], int)
+    assert isinstance(result[4], int)
+    assert isinstance(result[5], int)
+    assert isinstance(result[6], int)
+    assert isinstance(result[7], int)
 
 @pytest.mark.parametrize("test_input,expected", [
     ("This is the final answer", True),

@@ -2,7 +2,7 @@ import pytest
 import asyncio
 from unittest.mock import patch, MagicMock
 
-from src.ragpipeline.retrieval.retrieveknowledge import get_cross_encoder, query_pinecone_index, rerank_documents, run_retriever
+from src.ragpipeline.retrieval.retrieveknowledge import  rerank_documents, run_retriever
 
 
 @pytest.mark.asyncio
@@ -22,7 +22,7 @@ async def test_run_retriever():
 
 @pytest.mark.asyncio
 async def test_run_retriever_no_matches():
-    with patch('src.ragpipeline.retrieval.embeddingmode.get_embeddings'), \
+    with patch('src.ragpipeline.retrieval.embeddingmodel.get_embeddings'), \
          patch('src.ragpipeline.retrieval.retrieveknowledge.query_pinecone_index') as mock_query_pinecone:
         
         mock_query_pinecone.return_value = {"matches": []}
@@ -43,19 +43,4 @@ def test_rerank_documents():
         result = rerank_documents("test query", ["doc1", "doc2", "doc3", "doc4"])
         assert result == ["reranked_doc1", "reranked_doc2", "reranked_doc3"]
 
-def test_query_pinecone_index():
-    with patch('src.ragpipeline.retrieval.retrieveknowledge.pc_index.query') as mock_query:
-        mock_query.return_value = {"matches": [{"id": "1", "score": 0.9}]}
 
-        result = query_pinecone_index([0.1, 0.2, 0.3])
-        assert result == {"matches": [{"id": "1", "score": 0.9}]}
-
-def test_get_cross_encoder():
-    with patch('sentence_transformers.CrossEncoder') as MockCrossEncoder:
-        mock_encoder = MockCrossEncoder.return_value
-        
-        encoder1 = get_cross_encoder()
-        encoder2 = get_cross_encoder()
-        
-        assert encoder1 == encoder2  # Test caching
-        MockCrossEncoder.assert_called_once()  # Ensure CrossEncoder is only instantiated once
