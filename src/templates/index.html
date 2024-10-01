@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Dev-Test Interface with Refined SSE Streaming</title>
+    <link rel="stylesheet" href="static/style.css">
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <p>AI Dev Test</p>
+    </div>
+    <div class="chatarea">
+        <div class="content" id="chat-content">
+            <!-- Chat messages will be inserted here -->
+        </div>
+        <div class="input-area">
+            <div class="input-box">
+                <input type="text" id="user-input" placeholder="chat here">
+                <button class="send-button">▶</button>
+            </div>
+        </div>
+    </div>
+    <div style="position: fixed; right: 0; top: 20%;">
+        <h2 class="upload-header">Upload PDF</h2>
+        <p style="width: 220px; margin-bottom:10px">Upload PDF document and chat with it instantly!</p>
+        <div id="upload-status"  style="margin-top:10px;margin-bottom:10px"></div>
+        <form id="upload-form" class="upload-form">
+            <div class="file-upload">
+            <input type="file" id="pdf-file"  class="file-upload-btn" accept=".pdf" required style="display: block; margin-bottom: 5px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+            <button type="submit" style="display: block; margin-top:15px; background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Upload</button>
+        </div>
+    </form>
+    
+    </div>
+    <script>
+        const chatContent = document.getElementById('chat-content');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.querySelector('.send-button');
+        const uploadForm = document.getElementById('upload-form');
+        const uploadStatus = document.getElementById('upload-status');
+
+        const STREAM_URL = 'http://localhost:8000/dev/api/v1/chat-stream';
+        const UPLOAD_URL = 'http://localhost:8000/dev/api/v1/upload-doc';  // Replace with your actual upload endpoint
+
+        // Replace with your actual credentials
+        const USERNAME = 'adminengr';
+        const PASSWORD = 'admin0000#';
+
+        function addMessage(content, isAI) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isAI ? 'ai-message' : 'user-message');
+            messageDiv.textContent = content;
+            chatContent.appendChild(messageDiv);
+            chatContent.scrollTop = chatContent.scrollHeight;
+            return messageDiv;
+        }
+        async function streamResponse(sentence) {
+    const aiMessageDiv = addMessage('', true);
+
+    const payload = {
+        sentence: sentence,
+    }
+
+    const response = await fetch(STREAM_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa(USERNAME + ':' + PASSWORD)
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+            if (line.trim() !== '') {
+                let content = line.replace(/^data:/, '').trim();
+                content = content.replace(/\\n/g, '<br>');
+                aiMessageDiv.innerHTML += content;
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
+        }
+    }
+}
+        // async function streamResponse(sentence) {
+        //     const aiMessageDiv = addMessage('', true);
+
+        //     const payload = {
+        //         sentence: sentence,
+        //     }
+
+        //     const response = await fetch(STREAM_URL, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'text/event-stream',
+        //             'Authorization': 'Basic ' + btoa(USERNAME + ':' + PASSWORD)
+        //         },
+        //         body: JSON.stringify(payload)
+        //     });
+
+        //     const reader = response.body.getReader();
+        //     const decoder = new TextDecoder();
+
+        //     let buffer = '';
+        //     let isStreaming = false;
+
+        //     while (true) {
+        //         const { done, value } = await reader.read();
+        //         if (done) break;
+
+        //         buffer += decoder.decode(value, { stream: true });
+        //         const lines = buffer.split('\n');
+        //         buffer = lines.pop();
+
+        //         for (const line of lines) {
+                  
+        //                 let content = line.replace(/^data:/, '')
+        //                 const tempDiv = document.createElement('div');
+        //                 tempDiv.innerHTML = content; 
+                        
+        //                 content = tempDiv.textContent || tempDiv.innerText || '';
+        //                 content = content.replace(/\\n/g, '<br>');
+        //                 console.log(content)
+        //                 aiMessageDiv.innerHTML = content;
+        //                 chatContent.scrollTop = chatContent.scrollHeight;
+                    
+        //         }
+        //     }
+        // }
+
+        sendButton.addEventListener('click', async () => {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, false);
+                userInput.value = '';
+                await streamResponse(message);
+            }
+        });
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            uploadStatus.textContent = 'uploading...';
+            uploadStatus.style.color = 'yellow';
+            const fileInput = document.getElementById('pdf-file');
+            const file = fileInput.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch(UPLOAD_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Basic ' + btoa(USERNAME + ':' + PASSWORD)
+                        },
+                        body: formData
+                    });
+
+                    if (response.status === 201) {
+                        uploadStatus.textContent = 'Upload successful!';
+                        uploadStatus.style.color = 'green';
+                    } else {
+                        uploadStatus.textContent = 'Upload failed. Please try again.';
+                        uploadStatus.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    uploadStatus.textContent = 'An error occurred. Please try again.';
+                    uploadStatus.style.color = 'red';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
