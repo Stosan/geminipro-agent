@@ -136,7 +136,7 @@ class MastivAgent:
 
         # Bind the language model with a stop token for generating output
         llm_with_stop = llm.bind(stop=["\nObservation"])
-
+ 
         # Define a sequence of processing steps for input/output data
         return (
             {

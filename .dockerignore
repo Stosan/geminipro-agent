@@ -1,0 +1,34 @@
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+gmenv
+doc
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Version control
+.git
+.github
+.gitignore
+
+# IDEs
+.vscode
+.idea
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Application specific
+*.log
+*.sqlite3

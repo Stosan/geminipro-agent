@@ -67,6 +67,18 @@ To set up Pinecone as vectorDB, follow these steps:
      ```
      PINECONE_API_KEY=your_pinecone_api_key
      ```
+### Setting Up Serper for google search API
+
+To set up Serper for web search tool, follow these steps:
+
+1. **Sign Up and Get an API Key**:
+   - Go to the [Serper.dev website](https://www.serper.dev/) and sign up for an account.
+   - Once you have signed up, navigate to the API keys section in your dashboard and generate a new API key.
+
+2. **Configure Environment Variables**:
+   - Add your Serper API key to the `.env` file:
+     ```
+     SERPER_API_KEY=your_serper_api_key
 
 ### Installation 💽
 
@@ -179,3 +191,6 @@ After successfully running the GeminiPro-AI Agent Server, you can start interact
 
 3. **Security**
 - implement HTTPSRedirectMiddleware from the fastAPI class
+
+
+1. update installation with serper.dev

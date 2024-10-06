@@ -133,41 +133,9 @@ body {
 }
 #upload-status {
     margin-top: 10px;
-    font-weight: bold;
+    font-weight: semibold;
 }
-.file-upload {
-    position: relative;
-    overflow: hidden;
-    margin: 10px 0;
-}
-.file-upload input[type=file] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
-    font-size: 100px;
-    text-align: right;
-    filter: alpha(opacity=0);
-    opacity: 0;
-    outline: none;
-    background: white;
-    cursor: pointer;
-    display: block;
-}
-.file-upload-btn {
-    background-color: #ff4b4b;
-    border: none;
-    color: white;
-    padding: 10px 25px;
-    font-size: 16px;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    display: inline-block;
-    width: 100%;
-    text-align: center;
-}
+
 
 @media (max-width: 768px) {
     .chatarea {

@@ -9,7 +9,7 @@ from src.dependencies import get_current_username
 from src.api_models.chat_model import ChatRequest
 from src.agent.llm import LLM_Model
 from src.agent.toolkit.base import MastivTools
-from src.inference import StreamConversation
+from src.inferencev2 import StreamConversation
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, Request, UploadFile, HTTPException, Depends, status
 from src.config.settings import get_setting
@@ -153,6 +153,7 @@ async def generate_events(stc,dumped_data:dict,sentence:str):
     async for chunk in stc.generate_response(dumped_data.get("userData"), sentence):
         yield f"data: {chunk}\n\n"
 
+
 @app.post(f"{settings.API_STR}/chat-stream")
 async def generate_response(
     data: ChatRequest,
@@ -188,6 +189,42 @@ async def generate_response(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal Server Error: {e}",
         )
+
+# @app.post(f"{settings.API_STR}/chat-stream")
+# async def generate_response(
+#     data: ChatRequest,
+#     username: str = Depends(get_current_username),
+# ) -> StreamingResponse:
+#     """Endpoint for chat requests.
+#     It uses the StreamingConversationChain instance to generate responses,
+#     and then sends these responses as a streaming response.
+#     :param data: The request data.
+#     """
+#     try:
+#         dumped_data = data.model_dump()
+#         sentence = dumped_data.get("sentence").strip()
+#         # Basic attack protection: remove "[INST]" or "[/INST]" or "<|im_start|>"from the sentence
+#         sentence = re.sub(r"\[/?INST\]|<\|im_start\|>|<\|im_end\|>", "", sentence)
+
+
+#         if sentence.lower() in static_responses:
+#             # Use the generator for static responses
+#             async for response in static_response_generator(sentence):
+#                 return StreamingResponse(response, media_type="text/event-stream")
+
+#         stc = StreamConversation(llm=api_llm)
+#         if data.userData is not None:
+#             dumped_data = data.model_dump()
+#             sentence = dumped_data.get("sentence").strip()
+#             return StreamingResponse(generate_events(stc,dumped_data, sentence), media_type="text/event-stream")
+#         else:
+#             return StreamingResponse(generate_events(stc,{}, sentence), media_type="text/event-stream")
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"Internal Server Error: {e}",
+#         )
 
 
 
