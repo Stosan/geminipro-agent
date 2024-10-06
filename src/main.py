@@ -31,8 +31,7 @@ description = f"""
 
 # Garbage collect to free up resources
 gc.collect()
-
-api_llm = LLM_Model()
+strmDict = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -43,8 +42,7 @@ async def lifespan(app: FastAPI):
     print(running_mode)
     print()
     configure_pinecone_index()
-    # MongoDB configuration
-    # MongoDBContextConfig()
+    strmDict["strmClass"] =  StreamConversation(llm=LLM_Model())
     print()
     MastivTools()
     print()
@@ -176,13 +174,13 @@ async def generate_response(
             async for response in static_response_generator(sentence):
                 return StreamingResponse(response, media_type="text/event-stream")
 
-        stc = StreamConversation(llm=api_llm)
+        
         if data.userData is not None:
             dumped_data = data.model_dump()
             sentence = dumped_data.get("sentence").strip()
-            return StreamingResponse(generate_events(stc,dumped_data, sentence), media_type="text/event-stream")
+            return StreamingResponse(generate_events(strmDict["strmClass"],dumped_data, sentence), media_type="text/event-stream")
         else:
-            return StreamingResponse(generate_events(stc,{}, sentence), media_type="text/event-stream")
+            return StreamingResponse(generate_events(strmDict["strmClass"],{}, sentence), media_type="text/event-stream")
     except Exception as e:
         print(e)
         raise HTTPException(
